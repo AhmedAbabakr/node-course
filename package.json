@@ -1,0 +1,21 @@
+{
+  "name": "course",
+  "version": "1.0.0",
+  "description": "complete node js guide",
+  "main": "first-app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node first-app.js",
+    "start-server": "node first-app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AhmedAbabakr/node-course.git"
+  },
+  "author": "Ahmed Ababakr",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AhmedAbabakr/node-course/issues"
+  },
+  "homepage": "https://github.com/AhmedAbabakr/node-course#readme"
+}
