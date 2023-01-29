@@ -3,23 +3,25 @@
 
 const http = require("http");
 const express = require("express");
+const bodyParser = require('body-parser');
 const app = express();
+app.use(express.urlencoded({extended:false}));
+// app.use(bodyParser.urlencoded({extended:false}));
 
-app.use((request,response,next) => {
-    console.log("Middleware");
-    next();
-});
-app.use((request,response,next) => {
-    console.log("Another Middleware");
-});
-// const routes = require("./routes");
-function rqListener(message,response)
-{
-    console.log(message);
-    console.log("Tes");
-    // process.exit();
-}
+app.use('/add-product',(request,response,next) => {
+    response.send("<form action='/product' method='POST'><input name='3awady' type='text' placeholder='Insert Name'><button type='submit'>Submit</button></form>");
+    // response.send("<form action='/product' method='POST'><input name='3awady' type='text' placeholder='Insert Name'><button type='submit'>Submit</button></form>");
 
+});
+app.use('/product',(request,response,next) => {
+    console.log(request.body);
+    response.redirect('/');
+});
+
+app.use('/',(request,response,next) => {
+    response.send("<h1>Welcome Home</h1>");
+
+});
 // const server = http.createServer(routes);
 const server = http.createServer(app);
 
