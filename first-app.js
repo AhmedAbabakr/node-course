@@ -5,23 +5,20 @@ const http = require("http");
 const express = require("express");
 const bodyParser = require('body-parser');
 const app = express();
+const routes =require('./routes');
+const { response } = require("express");
+
 app.use(express.urlencoded({extended:false}));
+app.use('/admin',routes); 
+app.use((request,response,next) => {
+    response.status(404).send("<h1>Page Not Found</h1>");
+});
+
 // app.use(bodyParser.urlencoded({extended:false}));
 
-app.use('/add-product',(request,response,next) => {
-    response.send("<form action='/product' method='POST'><input name='3awady' type='text' placeholder='Insert Name'><button type='submit'>Submit</button></form>");
-    // response.send("<form action='/product' method='POST'><input name='3awady' type='text' placeholder='Insert Name'><button type='submit'>Submit</button></form>");
 
-});
-app.use('/product',(request,response,next) => {
-    console.log(request.body);
-    response.redirect('/');
-});
 
-app.use('/',(request,response,next) => {
-    response.send("<h1>Welcome Home</h1>");
 
-});
 // const server = http.createServer(routes);
 const server = http.createServer(app);
 
