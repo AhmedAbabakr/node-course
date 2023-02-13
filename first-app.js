@@ -6,12 +6,17 @@ const express = require("express");
 const bodyParser = require('body-parser');
 const app = express();
 const routes =require('./routes');
+const path = require('path');
+
 const { response } = require("express");
 
 app.use(express.urlencoded({extended:false}));
-app.use('/admin',routes); 
+// app.use('/admin',routes); 
+app.use(routes); 
 app.use((request,response,next) => {
-    response.status(404).send("<h1>Page Not Found</h1>");
+    // response.status(404).send("<h1>Page Not Found</h1>");
+    response.status(404).sendFile(path.join(__dirname,'views','404.html'));
+
 });
 
 // app.use(bodyParser.urlencoded({extended:false}));
