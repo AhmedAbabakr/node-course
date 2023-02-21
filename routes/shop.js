@@ -1,13 +1,10 @@
 
 const express = require('express');
 const router = express.Router();
-router.get('/add-product',(request,response,next) => {
-    response.send("<form action='/product' method='POST'><input name='3awady' type='text' placeholder='Insert Name'><button type='submit'>Submit</button></form>");
-    // response.send("<form action='/product' method='POST'><input name='3awady' type='text' placeholder='Insert Name'><button type='submit'>Submit</button></form>");
+productsController = require('../controllers/ProductsController');
+router.get('/all-products',productsController.index)
+router.get('/add-product',productsController.create);
+router.post('/add-product',productsController.store);
 
-});
-router.post('/product',(request,response,next) => {
-    console.log(request.body);
-    response.redirect('/');
-});
+
 module.exports = router;

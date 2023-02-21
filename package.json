@@ -19,6 +19,9 @@
   },
   "homepage": "https://github.com/AhmedAbabakr/node-course#readme",
   "dependencies": {
-    "express": "^4.18.2"
+    "ejs": "^3.1.8",
+    "express": "^4.18.2",
+    "express-handlebars": "^6.0.7",
+    "pug": "^3.0.2"
   }
 }
