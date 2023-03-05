@@ -40,3 +40,21 @@ exports.getCheckout = (req, res, next) => {
     pageTitle: 'Checkout'
   });
 };
+
+
+exports.showProduct = (req,res,next)=>{
+  id = req.params.productId;
+  Product.findById(id,product => {
+    res.render('shop/product-detail', {
+      product: product,
+      pageTitle: product.title,
+      path: '/products'
+    });
+  });
+}
+
+
+exports.addToCart = (req,res,next) => {
+  console.log(req.body.productId);
+  res.redirect("/");
+}
