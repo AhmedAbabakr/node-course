@@ -46,6 +46,7 @@ module.exports = class Product {
           console.log(err);
         });
       }
+
     });
   }
 
@@ -58,6 +59,7 @@ module.exports = class Product {
           Cart.deleteProduct(id, product.price);
         }
       });
+
     });
   }
 
