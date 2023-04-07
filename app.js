@@ -10,13 +10,15 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const MONGODBSession = require('connect-mongodb-session')(session);
 const app = express();
-
-app.set('view engine', 'ejs');
-app.set('views', 'views');
-
+const isAuth = require('./middlewares/is-auth');
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
+const csrf = require('csurf');
+const flash = require('connect-flash');
+app.set('view engine', 'ejs');
+app.set('views', 'views');
+
 const MONGODBURI = "mongodb+srv://ahmedababakr:K4PTn5rGMImk2w9k@cluster0.rgtozde.mongodb.net/shop?retryWrites=true&w=majority";
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -30,6 +32,15 @@ app.use(session({
   secret:"my secret",resave:false,saveUninitialized:false
   ,store:sessionStore
 }));
+
+app.use(csrf());
+app.use(flash());
+app.use((request,response,next) => {
+  response.locals.isAuthenticated = request.session.isLoggedIn;
+  response.locals.csrfToken = request.csrfToken();
+  response.locals.errorMessage = request.flash('error');
+  next();
+})
 app.use((req, res, next) => {
   if(!req.session.user)
   {
@@ -44,7 +55,7 @@ app.use((req, res, next) => {
     .catch(err => console.log(err));
 });
 
-app.use('/admin', adminRoutes);
+app.use('/admin',isAuth, adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
 
