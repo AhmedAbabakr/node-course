@@ -14,6 +14,3 @@ const transport =  nodemailer.createTransport({
     }
   });
 module.exports = transport;
-
-// em1919.bakar
-// u33470774.wl025.sendgrid.net
