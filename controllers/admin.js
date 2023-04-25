@@ -83,26 +83,51 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
+  const page = +req.query.page || 1;
+  const itemPerPage = 2;
+  let totalItems;
   Product.find()
-  // .populate("userId",'name')
-    .then(products => {
-      console.log(products);
-      res.render('admin/products', {
-        prods: products,
-        pageTitle: 'Admin Products',
-        path: '/admin/products',
-        isAuthenticated: req.session.isLoggedIn
-      });
-    })
+  .count()
+  .then(numProducts => {
+      totalItems  = numProducts;
+      return Product.find().skip((page -1) * itemPerPage).limit(itemPerPage)
+  })
+  .then(products => {
+    
+    res.render('admin/products', {
+      prods: products,
+      pageTitle: 'Admin Products',
+      path: '/admin/products',
+      isAuthenticated: req.session.isLoggedIn,
+      totalItems : totalItems,
+      currentPage:page,
+      hasNextPage : itemPerPage*page < totalItems,
+      hasPreviousPage : page>1,
+      nextPage : page +1,
+      previousPage : page -1,
+      lastPage : Math.ceil(totalItems/itemPerPage)
+    });
+  })
     .catch(err => console.log(err));
 };
 
-exports.postDeleteProduct = (req, res, next) => {
-  const prodId = req.body.productId;
+// exports.postDeleteProduct = (req, res, next) => {
+//   const prodId = req.body.productId;
+//   Product.findByIdAndDelete(prodId)
+//     .then(() => {
+//       console.log('DESTROYED PRODUCT');
+//       res.redirect('/admin/products');
+//     })
+//     .catch(err => console.log(err));
+// };
+
+
+exports.deleteProduct = (req, res, next) => {
+  const prodId = req.params.productId;
   Product.findByIdAndDelete(prodId)
     .then(() => {
       console.log('DESTROYED PRODUCT');
-      res.redirect('/admin/products');
+      res.status(200).json({message:"Success!"});
     })
-    .catch(err => console.log(err));
+    .catch(err =>res.status(500).json({message:"Failed TO Delete!"}));
 };

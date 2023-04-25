@@ -1,6 +1,6 @@
 const Product = require('../models/product');
 const Order = require('../models/order');
-
+// const Stripe = require('stripe')('sk_test_51N0eUvJrehnMwlUpGpo4k1AOupqRRdKLO8RJNh0aExg1wSIZyBspKWjAqh4OxsfsPaYXTa5O2eAUbyGC3QFvcf8R0079nZMGDQ');
 exports.getProducts = (req, res, next) => {
   Product.find()
     .then(products => {
@@ -133,4 +133,27 @@ exports.getOrders = (req, res, next) => {
       });
     })
     .catch(err => console.log(err));
+};
+
+exports.getCheckout = (req, res, next) => {
+  req.user
+    .populate('cart.items.productId')
+    .then(user => {
+      const products = user.cart.items;
+      let total = 0;
+      products.forEach(p => {
+        total += p.quantity * p.productId.price;
+      });
+      res.render('shop/checkout', {
+        path: '/checkout',
+        pageTitle: 'Checkout',
+        products: products,
+        totalSum: total
+      });
+    })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
