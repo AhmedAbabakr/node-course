@@ -1,7 +1,27 @@
-module.exports = (request,response,next) =>{
-    if(!request.session.isLoggedIn)
+const jwt = require('jsonwebtoken');
+module.exports = (req,res,next) => {
+    const token = req.get('Authorization');
+    let decodedToken;
+    if(!token)
     {
-        return response.redirect("/login");
+        const error = new Error('not authenticated');
+        error.statusCode = 401;
+        throw error;
     }
-    return next();
+    const userToken = token.split(' ')[1];
+    try{
+        decodedToken = jwt.verify(userToken,"secretTokenWebsecretTokenWeb")
+    } catch(err) {
+        err.statusCode = 500;
+        throw err;
+    }
+
+    if(!decodedToken)
+    {
+        const error = new Error('not authenticated');
+        error.statusCode = 401;
+        throw error;
+    }
+    req.user = decodedToken;
+    next();
 }

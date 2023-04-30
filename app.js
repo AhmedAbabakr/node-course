@@ -1,87 +1,37 @@
-const path = require('path');
-
 const express = require('express');
-const bodyParser = require('body-parser');
-
-const errorController = require('./controllers/error');
-const mongoConnect = require('./util/database').mongoConnect;
-const User = require('./models/user');
-const mongoose = require('mongoose');
-const session = require('express-session');
-const MONGODBSession = require('connect-mongodb-session')(session);
 const app = express();
-const isAuth = require('./middlewares/is-auth');
-const adminRoutes = require('./routes/admin');
-const shopRoutes = require('./routes/shop');
-const authRoutes = require('./routes/auth');
-const csrf = require('csurf');
-const flash = require('connect-flash');
-app.set('view engine', 'ejs');
-app.set('views', 'views');
+const routes = require('./routes');
+const bodyParser = require('body-parser');
+const sequelizeConnection = require('./util/db');
+const path = require('path');
+const Post = require('./models/post');
+const User = require('./models/user');
 
-const MONGODBURI = "mongodb+srv://ahmedababakr:K4PTn5rGMImk2w9k@cluster0.rgtozde.mongodb.net/shop?retryWrites=true&w=majority";
-
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, 'public')));
-const sessionStore = new MONGODBSession({
-  uri:MONGODBURI,
-  collection:"sessions"
-})
-
-app.use(session({
-  secret:"my secret",resave:false,saveUninitialized:false
-  ,store:sessionStore
-}));
-
-app.use(csrf());
-app.use(flash());
-app.use((request,response,next) => {
-  response.locals.isAuthenticated = request.session.isLoggedIn;
-  response.locals.csrfToken = request.csrfToken();
-  response.locals.errorMessage = request.flash('error');
-  next();
-})
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true }));
 app.use((req, res, next) => {
-  if(!req.session.user)
-  {
-    return next();
-  }
-  User.findById(req.session.user._id)
-    .then(user => {
-      // console.log(user)
-        req.user = user;
-        next();
-    })
-    .catch(err => console.log(err));
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    next();
 });
-
-app.use('/admin',isAuth, adminRoutes);
-app.use(shopRoutes);
-app.use(authRoutes);
-
-app.use(errorController.get404);
-
-// mongoConnect(() => {
-//   app.listen(3000);
-// });
-
-mongoose.connect(MONGODBURI)
-.then(result => {
-  User.findOne()
-  .then(user => {
-    if(!user)
-    {
-        user = new User({
-          name:"Ahmed Abobakr",
-          email:"Ahmedababakr@yahoo.com",
-          cart:[]
-        });
-        user.save();
-    }
+app.use('/images',express.static(path.join(__dirname,'images')));
+app.use('/api',routes);
+app.use((err,req,res,next) => {
+    console.log(err);
+    const status =err.statusCode || 500;
+    const message = err.message;
+    
+    res.status(status).json({message:message});
+})
+User.hasMany(Post);
+Post.belongsTo(User);
+sequelizeConnection
+  .sync()
+  .then(() => {
+    console.log('Database and tables created!');
+    app.listen(8080);
   })
-  app.listen(3000);
-
-})
-.catch(error => {
-  console.log(error)
-})
+  .catch(error => {
+    console.log(error);
+  });
